@@ -33,7 +33,7 @@ impl<'s> MigrationSource<'s> for &'s Path {
         let mut npath = String::from("");
         let paths = match env::var("PROJECT_DB") {
             Ok(val) => {
-                println!("___________  PROJECT_DB: {}",val.clone());
+                println!("Environment varibale PROJECT_DB is set: {}",val);
                 let bpath = self.clone().to_str().unwrap();
                 let npath = format!("{}/{}",bpath,val.clone());
                 npath
@@ -43,14 +43,15 @@ impl<'s> MigrationSource<'s> for &'s Path {
                 // Path::new(&npath)
             },
             _ => {
-                println!("___________  No PROJECT_DB: {:?}",self);
+                println!("No Environment varibale PROJECT_DB is set, so using {:?} for sql scripts",self);
                 let bpath =  self.clone().to_str().unwrap();
                 String::from(bpath)
                 // Path::new(bpath)
             }
         };
-        println!("___________ old {:?}, npath: {}",self,npath);
+        // println!("___________ old {:?}, npath: {}",self,paths);
         let path = PathBuf::from(paths);
+        println!("Using  sql script path as  {:?}",path);
         // let mut s = fs::read_dir(path).await?;
         
         Box::pin(async move {
