@@ -27,8 +27,33 @@ pub trait MigrationSource<'s>: Debug {
 
 impl<'s> MigrationSource<'s> for &'s Path {
     fn resolve(self) -> BoxFuture<'s, Result<Vec<Migration>, BoxDynError>> {
+                
+        use std::env;
+        use std::path::{Path,PathBuf};
+        let mut npath = String::from("");
+        let paths = match env::var("PROJECT_DB") {
+            Ok(val) => {
+                let bpath = self.clone().to_str().unwrap();
+                let npath = format!("{}/{}",bpath,val.clone());
+                npath
+                // npath.push_str(bpath);
+                // npath.push('/');
+                // npath.push_str(val.as_str());
+                // Path::new(&npath)
+            },
+            _ => {
+                let bpath =  self.clone().to_str().unwrap();
+                String::from(bpath)
+                // Path::new(bpath)
+            }
+        };
+
+        let path = PathBuf::from(paths);
+        // let mut s = fs::read_dir(path).await?;
+        
         Box::pin(async move {
-            let mut s = fs::read_dir(self.canonicalize()?).await?;
+            // let mut s = fs::read_dir(self.canonicalize()?).await?;
+            let mut s = fs::read_dir(path).await?;
             let mut migrations = Vec::new();
 
             while let Some(entry) = s.next().await? {
